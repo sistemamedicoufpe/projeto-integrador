@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroDiagnóstico - Sistema de Avaliação Neurológica</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #9b59b6;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --border: #bdc3c7;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-hover: 0 8px 15px rgba(0,0,0,0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .login-form {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: var(--shadow-hover);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-logo h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .login-logo p {
+            color: var(--text-secondary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+        }
+
+        .btn-outline:hover {
+            background: var(--secondary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-link {
+            background: transparent;
+            color: var(--secondary);
+            border: none;
+            text-decoration: underline;
+            padding: 5px 10px;
+        }
+
+        .btn-link:hover {
+            color: #2980b9;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .container {
+            display: none;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: var(--primary);
+            color: white;
+            padding: 20px 0;
+            transition: all 0.3s;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .logo {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            padding: 15px 25px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-links li.active {
+            background: rgba(255,255,255,0.1);
+            border-left: 4px solid var(--secondary);
+        }
+
+        .nav-links li:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            margin-left: 250px;
+            transition: margin-left 0.3s;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header h2 {
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* Cards */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .icon-patient { background: var(--secondary); }
+        .icon-test { background: var(--accent); }
+        .icon-results { background: var(--success); }
+
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .card-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Patient Info */
+        .patient-info {
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .patient-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .patient-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-right: 20px;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--dark);
+        }
+
+        .patient-details h3 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .patient-details p {
+            color: var(--text-secondary);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            margin-bottom: 15px;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-weight: 600;
+        }
+
+        /* Cognitive Tests */
+        .tests-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            margin-right: 10px;
+        }
+
+        .tests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .test-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .test-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .test-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--secondary);
+        }
+
+        .test-name {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .test-status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .status-completed {
+            background: #e8f6f3;
+            color: var(--success);
+        }
+
+        .status-pending {
+            background: #fef9e7;
+            color: var(--warning);
+        }
+
+        .test-score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: right;
+            color: var(--dark);
+        }
+
+        /* Results Visualization */
+        .results-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        /* Risk Assessment */
+        .risk-assessment {
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+        }
+
+        .risk-level {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .risk-indicator {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-right: 20px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .risk-low { background: var(--success); }
+        .risk-medium { background: var(--warning); }
+        .risk-high { background: var(--danger); }
+
+        .risk-details h4 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .risk-details p {
+            color: var(--text-secondary);
+        }
+
+        .recommendations {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .recommendations h4 {
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .recommendations ul {
+            padding-left: 20px;
+        }
+
+        .recommendations li {
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 5px;
+            line-height: 1;
+            transition: color 0.3s;
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Test Info Styles */
+        .test-info .info-row {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .test-info .info-row strong {
+            color: var(--text-primary);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Notification Styles */
+        .notificacao {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: var(--shadow-hover);
+            border-left: 4px solid #3498db;
+            z-index: 1000;
+            animation: slideInRight 0.3s ease;
+            max-width: 400px;
+            transform: translateX(0);
+        }
+
+        .notificacao-success { 
+            border-left-color: var(--success) !important; 
+        }
+
+        .notificacao-error { 
+            border-left-color: var(--danger) !important; 
+        }
+
+        .notificacao-warning { 
+            border-left-color: var(--warning) !important; 
+        }
+
+        .notificacao-info { 
+            border-left-color: var(--secondary) !important; 
+        }
+
+        .notificacao-conteudo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notificacao-conteudo i {
+            font-size: 1.2rem;
+        }
+
+        .notificacao-success .notificacao-conteudo i { 
+            color: var(--success); 
+        }
+
+        .notificacao-error .notificacao-conteudo i { 
+            color: var(--danger); 
+        }
+
+        .notificacao-warning .notificacao-conteudo i { 
+            color: var(--warning); 
+        }
+
+        .notificacao-info .notificacao-conteudo i { 
+            color: var(--secondary); 
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Animations */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInRight {
+            from { 
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to { 
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .container {
+                flex-direction: column;
+            }
+            
+            .cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .patient-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .patient-avatar {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .risk-level {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .risk-indicator {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+            
+            .tests-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                padding: 20px;
+                width: 95%;
+            }
+            
+            .modal-footer {
+                flex-direction: column;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 10px;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .patient-info, .results-section, .risk-assessment {
+                padding: 15px;
+            }
+            
+            .section-title {
+                font-size: 1.1rem;
+            }
+            
+            .card-value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela de Login -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-form">
+            <div class="login-logo">
+                <h1>NeuroDiagnóstico</h1>
+                <p>Sistema de Avaliação Neurológica</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="email">E-mail</label>
+                    <input type="email" class="form-control" id="email" placeholder="seu.email@exemplo.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">Senha</label>
+                    <input type="password" class="form-control" id="password" placeholder="Sua senha" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-sign-in-alt"></i> Entrar
+                </button>
+            </form>
+            <div class="login-footer">
+                <p>Não tem uma conta? <button type="button" class="btn-link" id="showRegisterBtn">Cadastre-se</button></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Cadastro -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Cadastro de Médico</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label class="form-label" for="registerName">Nome Completo</label>
+                        <input type="text" class="form-control" id="registerName" placeholder="Dr. João Silva" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="registerEmail">E-mail</label>
+                        <input type="email" class="form-control" id="registerEmail" placeholder="seu.email@exemplo.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="registerPassword">Senha</label>
+                        <input type="password" class="form-control" id="registerPassword" placeholder="Mínimo 6 caracteres" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="registerConfirmPassword">Confirmar Senha</label>
+                        <input type="password" class="form-control" id="registerConfirmPassword" placeholder="Digite a senha novamente" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="registerCRM">CRM</label>
+                        <input type="text" class="form-control" id="registerCRM" placeholder="Número do CRM" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="registerSpecialty">Especialidade</label>
+                        <select class="form-control" id="registerSpecialty" required>
+                            <option value="">Selecione uma especialidade</option>
+                            <option value="Neurologia">Neurologia</option>
+                            <option value="Geriatria">Geriatria</option>
+                            <option value="Psiquiatria">Psiquiatria</option>
+                            <option value="Neurocirurgia">Neurocirurgia</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline close-modal">Cancelar</button>
+                <button class="btn btn-primary" id="registerSubmitBtn">Cadastrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sistema Principal (inicialmente oculto) -->
+    <div class="container" id="mainContainer">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1>NeuroDiagnóstico</h1>
+            </div>
+            <ul class="nav-links">
+                <li class="active"><a href="#"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="#"><i class="fas fa-user-injured"></i> Pacientes</a></li>
+                <li><a href="#"><i class="fas fa-brain"></i> Avaliações</a></li>
+                <li><a href="#"><i class="fas fa-chart-bar"></i> Relatórios</a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> Configurações</a></li>
+                <li id="logoutBtn"><a href="#"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h2>Dashboard do Paciente</h2>
+                <div class="user-info">
+                    <img src="https://i.pravatar.cc/150?img=12" alt="Dr. Silva" id="userAvatar">
+                    <span id="userName">Dr. Silva</span>
+                </div>
+            </div>
+            
+            <!-- Summary Cards -->
+            <div class="cards">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Pacientes Ativos</div>
+                        <div class="card-icon icon-patient">
+                            <i class="fas fa-user-injured"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="activePatients">42</div>
+                    <div class="card-desc">+5 este mês</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Testes Realizados</div>
+                        <div class="card-icon icon-test">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="testsCompleted">128</div>
+                    <div class="card-desc">+12 esta semana</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Diagnósticos</div>
+                        <div class="card-icon icon-results">
+                            <i class="fas fa-diagnoses"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="diagnoses">24</div>
+                    <div class="card-desc">+3 novos casos</div>
+                </div>
+            </div>
+            
+            <!-- Patient Information -->
+            <div class="patient-info">
+                <div class="patient-header">
+                    <div class="patient-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="patient-details">
+                        <h3 id="patientName">Maria Oliveira, 72 anos</h3>
+                        <p id="patientDetails">ID: #P-00482 | Última consulta: 15/03/2023</p>
+                    </div>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Data de Nascimento</div>
+                        <div class="info-value" id="infoBirthDate">15/08/1951</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Gênero</div>
+                        <div class="info-value" id="infoGender">Feminino</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Contato</div>
+                        <div class="info-value" id="infoContact">(11) 98765-4321</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Responsável</div>
+                        <div class="info-value" id="infoResponsible">João Oliveira (filho)</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Histórico Familiar</div>
+                        <div class="info-value" id="infoFamilyHistory">Mãe com DA</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Comorbidades</div>
+                        <div class="info-value" id="infoComorbidities">Hipertensão, Diabetes</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cognitive Tests -->
+            <div class="tests-section">
+                <h3 class="section-title"><i class="fas fa-brain"></i> Avaliações Cognitivas</h3>
+                <div class="tests-grid" id="testsGrid">
+                    <!-- Test cards serão inseridos dinamicamente via JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Results Visualization -->
+            <div class="results-section">
+                <h3 class="section-title"><i class="fas fa-chart-line"></i> Progressão Cognitiva</h3>
+                <div class="chart-container">
+                    <canvas id="progressChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Risk Assessment -->
+            <div class="risk-assessment">
+                <h3 class="section-title"><i class="fas fa-exclamation-triangle"></i> Avaliação de Risco</h3>
+                <div class="risk-level">
+                    <div class="risk-indicator risk-medium" id="riskIndicator">
+                        Moderado
+                    </div>
+                    <div class="risk-details">
+                        <h4 id="riskTitle">Risco de Demência: Moderado</h4>
+                        <p id="riskDescription">Paciente apresenta declínio cognitivo significativo com pontuações abaixo do esperado para idade e escolaridade.</p>
+                    </div>
+                </div>
+                
+                <div class="recommendations">
+                    <h4>Recomendações:</h4>
+                    <ul id="recommendationsList">
+                        <!-- Recomendações serão inseridas dinamicamente via JavaScript -->
+                    </ul>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="generateReportBtn">Gerar Relatório</button>
+                    <button class="btn btn-outline" id="scheduleAppointmentBtn">Agendar Retorno</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados iniciais do sistema
+        let mockData = {
+            medicos: [
+                {
+                    id: 1,
+                    nome: "Dr. Silva",
+                    email: "dr.silva@neurodiagnostico.com",
+                    senha: "123456",
+                    crm: "12345-SP",
+                    especialidade: "Neurologia",
+                    avatar: "https://i.pravatar.cc/150?img=12"
+                },
+                {
+                    id: 2,
+                    nome: "Dra. Costa",
+                    email: "dra.costa@neurodiagnostico.com",
+                    senha: "123456",
+                    crm: "54321-SP",
+                    especialidade: "Geriatria",
+                    avatar: "https://i.pravatar.cc/150?img=5"
+                }
+            ],
+            pacientes: [
+                {
+                    id: 1,
+                    medicoId: 1,
+                    nome: "Maria Oliveira",
+                    idade: 72,
+                    codigo: "#P-00482",
+                    ultimaConsulta: "15/03/2023",
+                    dataNascimento: "15/08/1951",
+                    genero: "Feminino",
+                    contato: "(11) 98765-4321",
+                    responsavel: "João Oliveira (filho)",
+                    historicoFamiliar: "Mãe com DA",
+                    comorbidades: "Hipertensão, Diabetes",
+                    testes: [
+                        { nome: "Mini-Mental (MMSE)", status: "concluido", pontuacao: "24/30" },
+                        { nome: "MoCA", status: "concluido", pontuacao: "18/30" },
+                        { nome: "CDR", status: "concluido", pontuacao: "1.0" },
+                        { nome: "Teste do Relógio", status: "pendente", pontuacao: "-" }
+                    ],
+                    risco: "Moderado",
+                    descricaoRisco: "Paciente apresenta declínio cognitivo significativo com pontuações abaixo do esperado para idade e escolaridade.",
+                    recomendacoes: [
+                        "Realizar exames de neuroimagem (RM ou TC de crânio)",
+                        "Avaliação com geriatra para manejo de comorbidades",
+                        "Iniciar acompanhamento com terapia ocupacional",
+                        "Reavaliar em 6 meses com bateria completa de testes",
+                        "Orientar família sobre segurança e adaptações no ambiente doméstico"
+                    ]
+                },
+                {
+                    id: 2,
+                    medicoId: 1,
+                    nome: "José Santos",
+                    idade: 68,
+                    codigo: "#P-00483",
+                    ultimaConsulta: "10/03/2023",
+                    dataNascimento: "22/05/1955",
+                    genero: "Masculino",
+                    contato: "(11) 98765-4322",
+                    responsavel: "Maria Santos (esposa)",
+                    historicoFamiliar: "Pai com DA",
+                    comorbidades: "Hipertensão",
+                    testes: [
+                        { nome: "Mini-Mental (MMSE)", status: "concluido", pontuacao: "26/30" },
+                        { nome: "MoCA", status: "concluido", pontuacao: "22/30" },
+                        { nome: "CDR", status: "concluido", pontuacao: "0.5" },
+                        { nome: "Teste do Relógio", status: "concluido", pontuacao: "8/10" }
+                    ],
+                    risco: "Baixo",
+                    descricaoRisco: "Paciente apresenta leve declínio cognitivo com pontuações dentro do esperado para idade e escolaridade.",
+                    recomendacoes: [
+                        "Acompanhamento semestral",
+                        "Estimulação cognitiva",
+                        "Manter atividade física regular",
+                        "Reavaliar em 12 meses"
+                    ]
+                }
+            ],
+            estatisticas: {
+                pacientesAtivos: 42,
+                testesRealizados: 128,
+                diagnosticos: 24
+            }
+        };
+
+        // Estado da aplicação
+        let state = {
+            usuarioLogado: null,
+            pacienteSelecionado: null,
+            grafico: null
+        };
+
+        // Inicialização da aplicação
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarApp();
+        });
+
+        function inicializarApp() {
+            // Carregar dados do localStorage se existirem
+            carregarDadosLocalStorage();
+            
+            configurarLogin();
+            configurarCadastro();
+            configurarEventos();
+        }
+
+        function carregarDadosLocalStorage() {
+            const dadosSalvos = localStorage.getItem('neurodiagnostico_dados');
+            if (dadosSalvos) {
+                const dados = JSON.parse(dadosSalvos);
+                // Mesclar dados salvos com dados iniciais
+                mockData.medicos = [...mockData.medicos, ...dados.medicos];
+                // Atualizar IDs para evitar duplicação
+                let maxId = Math.max(...mockData.medicos.map(m => m.id));
+                dados.medicos.forEach(medico => {
+                    if (medico.id <= maxId) {
+                        medico.id = ++maxId;
+                    }
+                });
+            }
+        }
+
+        function salvarDadosLocalStorage() {
+            // Separar médicos cadastrados (excluindo os iniciais)
+            const medicosCadastrados = mockData.medicos.filter(m => m.id > 2);
+            const dadosParaSalvar = {
+                medicos: medicosCadastrados
+            };
+            localStorage.setItem('neurodiagnostico_dados', JSON.stringify(dadosParaSalvar));
+        }
+
+        function configurarLogin() {
+            const loginForm = document.getElementById('loginForm');
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('email').value;
+                const senha = document.getElementById('password').value;
+                
+                // Verificar credenciais
+                const medico = mockData.medicos.find(m => m.email === email && m.senha === senha);
+                
+                if (medico) {
+                    state.usuarioLogado = medico;
+                    fazerLogin(medico);
+                } else {
+                    mostrarNotificacao('E-mail ou senha incorretos!', 'error');
+                }
+            });
+        }
+
+        function configurarCadastro() {
+            const showRegisterBtn = document.getElementById('showRegisterBtn');
+            const registerModal = document.getElementById('registerModal');
+            const closeModalBtns = document.querySelectorAll('.close-modal');
+            const registerForm = document.getElementById('registerForm');
+            const registerSubmitBtn = document.getElementById('registerSubmitBtn');
+
+            // Mostrar modal de cadastro
+            showRegisterBtn.addEventListener('click', function() {
+                registerModal.classList.add('active');
+            });
+
+            // Fechar modal
+            closeModalBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    registerModal.classList.remove('active');
+                    registerForm.reset();
+                });
+            });
+
+            // Fechar modal ao clicar fora
+            registerModal.addEventListener('click', function(e) {
+                if (e.target === registerModal) {
+                    registerModal.classList.remove('active');
+                    registerForm.reset();
+                }
+            });
+
+            // Submeter formulário de cadastro
+            registerSubmitBtn.addEventListener('click', function() {
+                const nome = document.getElementById('registerName').value;
+                const email = document.getElementById('registerEmail').value;
+                const senha = document.getElementById('registerPassword').value;
+                const confirmarSenha = document.getElementById('registerConfirmPassword').value;
+                const crm = document.getElementById('registerCRM').value;
+                const especialidade = document.getElementById('registerSpecialty').value;
+
+                // Validações
+                if (!nome || !email || !senha || !confirmarSenha || !crm || !especialidade) {
+                    mostrarNotificacao('Por favor, preencha todos os campos!', 'error');
+                    return;
+                }
+
+                if (senha !== confirmarSenha) {
+                    mostrarNotificacao('As senhas não coincidem!', 'error');
+                    return;
+                }
+
+                if (senha.length < 6) {
+                    mostrarNotificacao('A senha deve ter pelo menos 6 caracteres!', 'error');
+                    return;
+                }
+
+                // Verificar se o e-mail já está cadastrado
+                const emailExistente = mockData.medicos.find(m => m.email === email);
+                if (emailExistente) {
+                    mostrarNotificacao('Este e-mail já está cadastrado!', 'error');
+                    return;
+                }
+
+                // Criar novo médico
+                const novoMedico = {
+                    id: Math.max(...mockData.medicos.map(m => m.id)) + 1,
+                    nome: nome,
+                    email: email,
+                    senha: senha,
+                    crm: crm,
+                    especialidade: especialidade,
+                    avatar: `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`
+                };
+
+                // Adicionar ao array de médicos
+                mockData.medicos.push(novoMedico);
+                
+                // Salvar no localStorage
+                salvarDadosLocalStorage();
+
+                // Fechar modal e mostrar mensagem de sucesso
+                registerModal.classList.remove('active');
+                registerForm.reset();
+                
+                mostrarNotificacao('Cadastro realizado com sucesso! Agora você pode fazer login.', 'success');
+            });
+        }
+
+        function fazerLogin(medico) {
+            // Mostrar sistema principal
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'flex';
+            
+            // Atualizar informações do usuário
+            document.getElementById('userName').textContent = medico.nome;
+            document.getElementById('userAvatar').src = medico.avatar;
+            
+            // Carregar dados do dashboard
+            carregarDadosDashboard();
+        }
+
+        function configurarEventos() {
+            // Botão de logout
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                fazerLogout();
+            });
+            
+            // Botões de ação
+            document.getElementById('generateReportBtn').addEventListener('click', gerarRelatorio);
+            document.getElementById('scheduleAppointmentBtn').addEventListener('click', agendarRetorno);
+
+            // Cards interativos
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const titulo = this.querySelector('.card-title').textContent;
+                    mostrarNotificacao(`Visualizando detalhes de: ${titulo}`, 'info');
+                });
+            });
+        }
+
+        function fazerLogout() {
+            state.usuarioLogado = null;
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('mainContainer').style.display = 'none';
+            document.getElementById('loginForm').reset();
+        }
+
+        function carregarDadosDashboard() {
+            // Obter pacientes do médico logado
+            const pacientesMedico = mockData.pacientes.filter(p => p.medicoId === state.usuarioLogado.id);
+            
+            // Selecionar o primeiro paciente (poderia ser implementada uma seleção)
+            state.pacienteSelecionado = pacientesMedico[0];
+            
+            // Atualizar cards de estatísticas
+            document.getElementById('activePatients').textContent = mockData.estatisticas.pacientesAtivos;
+            document.getElementById('testsCompleted').textContent = mockData.estatisticas.testesRealizados;
+            document.getElementById('diagnoses').textContent = mockData.estatisticas.diagnosticos;
+
+            // Carregar dados do paciente
+            carregarDadosPaciente(state.pacienteSelecionado);
+        }
+
+        function carregarDadosPaciente(paciente) {
+            // Informações básicas
+            document.getElementById('patientName').textContent = `${paciente.nome}, ${paciente.idade} anos`;
+            document.getElementById('patientDetails').innerHTML = `ID: ${paciente.codigo} | Última consulta: ${paciente.ultimaConsulta}`;
+
+            // Grid de informações
+            document.getElementById('infoBirthDate').textContent = paciente.dataNascimento;
+            document.getElementById('infoGender').textContent = paciente.genero;
+            document.getElementById('infoContact').textContent = paciente.contato;
+            document.getElementById('infoResponsible').textContent = paciente.responsavel;
+            document.getElementById('infoFamilyHistory').textContent = paciente.historicoFamiliar;
+            document.getElementById('infoComorbidities').textContent = paciente.comorbidades;
+
+            // Testes cognitivos
+            carregarTestesCognitivos(paciente.testes);
+
+            // Avaliação de risco
+            carregarAvaliacaoRisco(paciente);
+
+            // Inicializar gráfico
+            inicializarGrafico();
+        }
+
+        function carregarTestesCognitivos(testes) {
+            const gridTestes = document.getElementById('testsGrid');
+            gridTestes.innerHTML = '';
+
+            testes.forEach(test => {
+                const cardTeste = document.createElement('div');
+                cardTeste.className = 'test-card';
+                cardTeste.innerHTML = `
+                    <div class="test-name">${test.nome}</div>
+                    <div class="test-status status-${test.status}">${formatarStatus(test.status)}</div>
+                    <div class="test-score">${test.pontuacao}</div>
+                `;
+                
+                // Adicionar evento de clique para ver detalhes do teste
+                cardTeste.addEventListener('click', () => {
+                    abrirModalTeste(test);
+                });
+                
+                gridTestes.appendChild(cardTeste);
+            });
+        }
+
+        function carregarAvaliacaoRisco(paciente) {
+            const indicadorRisco = document.getElementById('riskIndicator');
+            indicadorRisco.textContent = paciente.risco;
+            indicadorRisco.className = `risk-indicator risk-${paciente.risco.toLowerCase()}`;
+
+            document.getElementById('riskTitle').textContent = `Risco de Demência: ${paciente.risco}`;
+            document.getElementById('riskDescription').textContent = paciente.descricaoRisco;
+
+            // Recomendações
+            const listaRecomendacoes = document.getElementById('recommendationsList');
+            listaRecomendacoes.innerHTML = '';
+            
+            paciente.recomendacoes.forEach(recomendacao => {
+                const item = document.createElement('li');
+                item.textContent = recomendacao;
+                listaRecomendacoes.appendChild(item);
+            });
+        }
+
+        function formatarStatus(status) {
+            const statusMap = {
+                'concluido': 'Concluído',
+                'pendente': 'Pendente'
+            };
+            return statusMap[status] || status;
+        }
+
+        function inicializarGrafico() {
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            
+            if (state.grafico) {
+                state.grafico.destroy();
+            }
+
+            state.grafico = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan/2022', 'Mar/2022', 'Jun/2022', 'Set/2022', 'Dez/2022', 'Mar/2023'],
+                    datasets: [{
+                        label: 'Pontuação MMSE',
+                        data: [28, 26, 25, 24, 23, 24],
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3
+                    }, {
+                        label: 'Pontuação MoCA',
+                        data: [22, 20, 19, 18, 17, 18],
+                        borderColor: '#9b59b6',
+                        backgroundColor: 'rgba(155, 89, 182, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Progressão das Avaliações Cognitivas',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 0,
+                            max: 30,
+                            title: {
+                                display: true,
+                                text: 'Pontuação',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Data da Avaliação',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    animations: {
+                        tension: {
+                            duration: 1000,
+                            easing: 'linear'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Funções de ação
+        function gerarRelatorio() {
+            // Simular geração de relatório
+            mostrarNotificacao('Relatório sendo gerado...', 'info');
+            
+            // Mostrar loading
+            const btnRelatorio = document.getElementById('generateReportBtn');
+            const textoOriginal = btnRelatorio.innerHTML;
+            btnRelatorio.innerHTML = '<div class="loading"></div> Gerando...';
+            btnRelatorio.disabled = true;
+            
+            setTimeout(() => {
+                btnRelatorio.innerHTML = textoOriginal;
+                btnRelatorio.disabled = false;
+                mostrarNotificacao('Relatório gerado com sucesso!', 'success');
+                
+                // Simular download
+                simularDownloadRelatorio();
+            }, 3000);
+        }
+
+        function agendarRetorno() {
+            mostrarNotificacao('Abrindo calendário para agendamento...', 'info');
+            
+            // Simular abertura de modal de agendamento
+            setTimeout(() => {
+                abrirModalAgendamento();
+            }, 1000);
+        }
+
+        function simularDownloadRelatorio() {
+            const link = document.createElement('a');
+            link.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(gerarConteudoRelatorio());
+            link.download = `relatorio_${state.pacienteSelecionado.nome.replace(' ', '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function gerarConteudoRelatorio() {
+            const p = state.pacienteSelecionado;
+            return `
+RELATÓRIO NEURODIAGNÓSTICO
+
+Paciente: ${p.nome}
+ID: ${p.codigo}
+Data de Nascimento: ${p.dataNascimento}
+Idade: ${p.idade} anos
+
+AVALIAÇÕES COGNITIVAS:
+${p.testes.map(t => `${t.nome}: ${t.pontuacao} (${formatarStatus(t.status)})`).join('\n')}
+
+AVALIAÇÃO DE RISCO: ${p.risco}
+
+RECOMENDAÇÕES:
+${p.recomendacoes.map((r, i) => `${i + 1}. ${r}`).join('\n')}
+
+Data de emissão: ${new Date().toLocaleDateString('pt-BR')}
+Médico responsável: ${state.usuarioLogado.nome}
+CRM: ${state.usuarioLogado.crm}
+Especialidade: ${state.usuarioLogado.especialidade}
+            `.trim();
+        }
+
+        // Modal para detalhes do teste
+        function abrirModalTeste(test) {
+            // Criar modal dinamicamente
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Detalhes do Teste - ${test.nome}</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="test-info">
+                            <div class="info-row">
+                                <strong>Status:</strong> 
+                                <span class="status-badge status-${test.status}">${formatarStatus(test.status)}</span>
+                            </div>
+                            <div class="info-row">
+                                <strong>Pontuação:</strong> ${test.pontuacao}
+                            </div>
+                            <div class="info-row">
+                                <strong>Data da Última Aplicação:</strong> 15/03/2023
+                            </div>
+                            <div class="info-row">
+                                <strong>Interpretação:</strong> ${obterInterpretacaoTeste(test.nome, test.pontuacao)}
+                            </div>
+                            <div class="info-row">
+                                <strong>Observações:</strong> ${obterObservacoesTeste(test.nome)}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline close-modal">Fechar</button>
+                        ${test.status === 'pendente' ? 
+                            '<button class="btn btn-primary aplicar-teste">Aplicar Teste</button>' : 
+                            '<button class="btn btn-primary ver-detalhes">Ver Detalhes Completos</button>'
+                        }
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            const closeModal = () => modal.remove();
+            
+            modal.querySelectorAll('.close-modal').forEach(btn => {
+                btn.addEventListener('click', closeModal);
+            });
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // Evento para aplicar teste
+            const btnAplicar = modal.querySelector('.aplicar-teste');
+            if (btnAplicar) {
+                btnAplicar.addEventListener('click', () => {
+                    mostrarNotificacao(`Iniciando aplicação do ${test.nome}...`, 'info');
+                    closeModal();
+                });
+            }
+
+            // Evento para ver detalhes completos
+            const btnDetalhes = modal.querySelector('.ver-detalhes');
+            if (btnDetalhes) {
+                btnDetalhes.addEventListener('click', () => {
+                    mostrarNotificacao(`Carregando detalhes completos do ${test.nome}...`, 'info');
+                    closeModal();
+                });
+            }
+        }
+
+        function abrirModalAgendamento() {
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Agendar Retorno</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="form-label">Paciente</label>
+                            <input type="text" class="form-control" value="${state.pacienteSelecionado.nome}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Data do Retorno</label>
+                            <input type="date" class="form-control" id="dataRetorno" min="${new Date().toISOString().split('T')[0]}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Horário</label>
+                            <select class="form-control" id="horarioRetorno">
+                                <option value="">Selecione um horário</option>
+                                <option value="08:00">08:00</option>
+                                <option value="09:00">09:00</option>
+                                <option value="10:00">10:00</option>
+                                <option value="11:00">11:00</option>
+                                <option value="14:00">14:00</option>
+                                <option value="15:00">15:00</option>
+                                <option value="16:00">16:00</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" id="observacoesRetorno" rows="3" placeholder="Adicione observações sobre o retorno..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline close-modal">Cancelar</button>
+                        <button class="btn btn-primary confirmar-agendamento">Confirmar Agendamento</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            const closeModal = () => modal.remove();
+            
+            modal.querySelectorAll('.close-modal').forEach(btn => {
+                btn.addEventListener('click', closeModal);
+            });
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+
+            // Confirmar agendamento
+            modal.querySelector('.confirmar-agendamento').addEventListener('click', () => {
+                const data = modal.querySelector('#dataRetorno').value;
+                const horario = modal.querySelector('#horarioRetorno').value;
+                
+                if (!data || !horario) {
+                    mostrarNotificacao('Por favor, preencha data e horário!', 'error');
+                    return;
+                }
+                
+                mostrarNotificacao(`Retorno agendado para ${new Date(data).toLocaleDateString('pt-BR')} às ${horario}`, 'success');
+                closeModal();
+            });
+        }
+
+        function obterInterpretacaoTeste(nomeTeste, pontuacao) {
+            const interpretacoes = {
+                "Mini-Mental (MMSE)": pontuacao === "24/30" ? "Comprometimento cognitivo leve" : "Avaliar resultado",
+                "MoCA": pontuacao === "18/30" ? "Comprometimento cognitivo moderado" : "Avaliar resultado",
+                "CDR": pontuacao === "1.0" ? "Demência leve" : "Avaliar resultado",
+                "Teste do Relógio": "Aguardando aplicação"
+            };
+            return interpretacoes[nomeTeste] || "Resultado não disponível";
+        }
+
+        function obterObservacoesTeste(nomeTeste) {
+            const observacoes = {
+                "Mini-Mental (MMSE)": "Paciente apresentou dificuldades principalmente na memória recente e orientação temporal.",
+                "MoCA": "Dificuldades significativas nas funções executivas e memória visuoespacial.",
+                "CDR": "Comprometimento leve nas atividades instrumentais de vida diária.",
+                "Teste do Relógio": "Teste ainda não aplicado."
+            };
+            return observacoes[nomeTeste] || "Sem observações adicionais.";
+        }
+
+        // Sistema de notificações
+        function mostrarNotificacao(mensagem, tipo = 'info') {
+            const notificacao = document.createElement('div');
+            notificacao.className = `notificacao notificacao-${tipo}`;
+            notificacao.innerHTML = `
+                <div class="notificacao-conteudo">
+                    <i class="fas ${obterIconeNotificacao(tipo)}"></i>
+                    <span>${mensagem}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notificacao);
+            
+            setTimeout(() => {
+                notificacao.remove();
+            }, 4000);
+        }
+
+        function obterIconeNotificacao(tipo) {
+            const icones = {
+                'success': 'fa-check-circle',
+                'error': 'fa-exclamation-circle',
+                'warning': 'fa-exclamation-triangle',
+                'info': 'fa-info-circle'
+            };
+            return icones[tipo] || 'fa-info-circle';
+        }
+    </script>
+</body>
+</html>
