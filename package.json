@@ -1,0 +1,18 @@
+{
+  "name": "sistema-neurodiagnostico",
+  "version": "1.0.0",
+  "description": "Sistema NeuroDiagnostico - Plataforma de gerenciamento de pacientes para clínica neurológica",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc && node fix-imports.js",
+    "compile": "tsc",
+    "watch": "tsc --watch",
+    "dev": "tsc --watch"
+  },
+  "keywords": ["neurologia", "gestão", "pacientes"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
